@@ -1,7 +1,7 @@
 # DQN Algorithm for Lunar Lander Problem
 
 
-This repository contains an implementation of the Deep Q-Network (DQN) algorithm to solve the Lunar Lander problem. The Lunar Lander problem is a classic reinforcement learning task where the goal is to safely land a spacecraft on the surface of the moon, using minimal fuel. More details about the environment: [OpenAI gym](https://gymnasium.farama.org/environments/box2d/lunar_lander/#lunar-lander)\
+This repository contains an implementation of the Deep Q-Network (DQN) algorithm to solve the Lunar Lander problem. The Lunar Lander problem is a classic reinforcement learning task where the goal is to safely land a spacecraft on the surface of the moon, using minimal fuel. More details about the environment: [OpenAI gym](https://gymnasium.farama.org/environments/box2d/lunar_lander/#lunar-lander).
 
 
 ## Usage
