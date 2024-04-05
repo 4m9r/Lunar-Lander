@@ -26,34 +26,37 @@ import torch.nn as nn
 import torch.optim as optim
 import copy
 
+
 class ExperienceReplayBuffer(object):
-    def __init__(self, max_len = 20000):
-        self.buffer = deque(maxlen = max_len)
+    def __init__(self, max_len=20000):
+        self.buffer = deque(maxlen=max_len)
 
     def append(self, experience):
         self.buffer.append(experience)
-    
+
     def __len__(self):
         return len(self.buffer)
 
     def sample_batch(self, n):
         if n > len(self.buffer):
             print("Error! too many element to retrieve")
-        
-        random_indices = np.random.choice(a = len(self.buffer), size=n, replace=False)
+
+        random_indices = np.random.choice(
+            a=len(self.buffer), size=n, replace=False)
 
         batch = [self.buffer[i] for i in random_indices]
-        
+
         # there are list of n elements
-    
+
         # states, actions, rewards, next_states, dones = zip(*batch)
-        return  zip(*batch)
-    
+        return zip(*batch)
+
+
 def plot_env(state):
     plt.imshow(state)
     plt.pause(.01)
     plt.clf()
-        
+
 
 def running_average(x, N):
     ''' Function used to compute the running average
@@ -65,6 +68,7 @@ def running_average(x, N):
     else:
         y = np.zeros_like(x)
     return y
+
 
 # Import and initialize the discrete Lunar Laner Environment , render_mode='rgb_array'
 env = gym.make('LunarLander-v2')
@@ -87,20 +91,18 @@ episode_reward_list = []       # this list contains the total reward per episode
 episode_number_of_steps = []   # this list contains the number of steps per episode
 
 # Random agent initialization
-# my_agent = Agent(n_actions, dim_state)
-# random_agent = RandomAgent(n_actions, dim_state)
 
-### Training process
+# Training process
 
 # trange is an alternative to range in python, from the tqdm library
 # It shows a nice progression bar that you can update with useful information
 EPISODES = trange(N_episodes, desc='Episode: ', leave=True)
-buffer = ExperienceReplayBuffer(max_len = L)
+buffer = ExperienceReplayBuffer(max_len=L)
 
 network = FFNetwork(dim_state, n_actions)
 target_network = copy.deepcopy(network)
 
-optimizer = optim.Adam(network.parameters(), lr = 5e-4)
+optimizer = optim.Adam(network.parameters(), lr=5e-4)
 counter = 0
 # model = torch.load('neural-network-1.pth')
 for i in EPISODES:
@@ -109,13 +111,15 @@ for i in EPISODES:
     state = env.reset()[0]
     total_episode_reward = 0.
     t = 0
-    eps = max(eps_min, eps_max - ((eps_max - eps_min) * (i- 1) / (N_episodes * 0.9 -1)))
+    eps = max(eps_min, eps_max - ((eps_max - eps_min)
+              * (i - 1) / (N_episodes * 0.9 - 1)))
     while not done and t < 1000:
-        # epsilon decay 
-        
+        # epsilon decay
+
         # Take a random action
-        s_tensor = torch.tensor([state], requires_grad= False, dtype=torch.float32)   
-        # action = random_agent.forward(state) 
+        s_tensor = torch.tensor(
+            [state], requires_grad=False, dtype=torch.float32)
+        # action = random_agent.forward(state)
         q_values = network(s_tensor)
         # action = my_agent.forward(s_tensor, eps)
         if np.random.uniform(0, 1) <= eps:
@@ -131,16 +135,20 @@ for i in EPISODES:
         # will be True if you reached the goal position,
         # False otherwise
         next_state, reward, done, _, _ = env.step(action)
-        
+
         exp = (state, action, reward, next_state, done)
-      
+
         buffer.append(exp)
         if len(buffer) > 200:
-            states, actions, rewards, next_states, dones = buffer.sample_batch(N)
-            states_tensor = torch.tensor(states, requires_grad=True, dtype=torch.float32)
+            states, actions, rewards, next_states, dones = buffer.sample_batch(
+                N)
+            states_tensor = torch.tensor(
+                states, requires_grad=True, dtype=torch.float32)
 
-            next_states_values = target_network(torch.tensor(next_states, requires_grad=False, dtype=torch.float32))
-            target_values = torch.zeros(N, requires_grad=False, dtype=torch.float32)
+            next_states_values = target_network(torch.tensor(
+                next_states, requires_grad=False, dtype=torch.float32))
+            target_values = torch.zeros(
+                N, requires_grad=False, dtype=torch.float32)
 
             # fix the targets
             for j in range(len(target_values)):
@@ -152,12 +160,11 @@ for i in EPISODES:
                     discounted_value = discount_factor * max_target_value
                     target_values[j] = rewards[j] + discounted_value
 
-        
             q_values = network(states_tensor)
-            q_a = torch.zeros(N, requires_grad=False,dtype=torch.float32)
-        
+            q_a = torch.zeros(N, requires_grad=False, dtype=torch.float32)
+
             for i in range(N):
-                q_a[i] = q_values[i,actions[i]]
+                q_a[i] = q_values[i, actions[i]]
 
             optimizer.zero_grad()
 
@@ -173,24 +180,18 @@ for i in EPISODES:
         total_episode_reward += reward
 
         counter += 1
-        if counter  == C:
-            # my_agent.target_network = copy.deepcopy(my_agent.network)
+        if counter == C:
             target_network.load_state_dict(network.state_dict())
             counter = 0
 
         # Update state for next iteration
         state = next_state
         t += 1
-        
-
-      
 
     # Append episode reward and total number of steps
     episode_reward_list.append(total_episode_reward)
     episode_number_of_steps.append(t)
 
-
-    
     # Close environment
     env.close()
 
@@ -199,17 +200,17 @@ for i in EPISODES:
     # of the last episode, average reward, average number of steps)
     EPISODES.set_description(
         "Episode {} - Reward/Steps: {:.1f}/{} - Avg. Reward/Steps: {:.1f}/{}".format(
-        i, total_episode_reward, t,
-        running_average(episode_reward_list, n_ep_running_average)[-1],
-        running_average(episode_number_of_steps, n_ep_running_average)[-1]))
+            i, total_episode_reward, t,
+            running_average(episode_reward_list, n_ep_running_average)[-1],
+            running_average(episode_number_of_steps, n_ep_running_average)[-1]))
 
 
-    
-# torch.save(network,'neural-network-1.pth')
+torch.save(network, 'neural-network-1.pth')
 
 # Plot Rewards and steps
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(16, 9))
-ax[0].plot([i for i in range(1, N_episodes+1)], episode_reward_list, label='Episode reward')
+ax[0].plot([i for i in range(1, N_episodes+1)],
+           episode_reward_list, label='Episode reward')
 ax[0].plot([i for i in range(1, N_episodes+1)], running_average(
     episode_reward_list, n_ep_running_average), label='Avg. episode reward')
 ax[0].set_xlabel('Episodes')
@@ -218,7 +219,8 @@ ax[0].set_title('Total Reward vs Episodes')
 ax[0].legend()
 ax[0].grid(alpha=0.3)
 
-ax[1].plot([i for i in range(1, N_episodes+1)], episode_number_of_steps, label='Steps per episode')
+ax[1].plot([i for i in range(1, N_episodes+1)],
+           episode_number_of_steps, label='Steps per episode')
 ax[1].plot([i for i in range(1, N_episodes+1)], running_average(
     episode_number_of_steps, n_ep_running_average), label='Avg. number of steps per episode')
 ax[1].set_xlabel('Episodes')
