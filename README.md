@@ -12,7 +12,7 @@ conda env create -f env.yml
 ```
 Train DQN agent:
 ```
-python lunar_lander
+python lunar_lander.py
 ```
 
 ## Files
