@@ -22,6 +22,6 @@ python lunar_lander.py
 - env.yml: Lists the required Python packages for this project.
 
 
-NOTE: This code was written as a part of assignment for course (EL2805) Reinforcement Learning at KTH.  
-Copyright [2020] [KTH Royal Institute of Technology] Licensed under the Educational Community License, Version 2.0 (the "License")  
+NOTE: This code was written as a part of the assignment for course (EL2805) Reinforcement Learning at KTH.  
+Copyright [2020] [KTH Royal Institute of Technology] Licensed under the Educational Community License, Version 2.0. 
 Code structure by [Alessio Russo - alessior@kth.se]
